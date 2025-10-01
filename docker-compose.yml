@@ -1,0 +1,110 @@
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  node-1:
+    image: crate:5.10.5
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+    volumes:
+      - "cratedb_data_1:/data"
+    command: ["crate",
+              "-Ccluster.name=crate-docker-cluster",
+              "-Cnode.name=node-1",
+              "-Cnode.data=true",
+              "-Cnetwork.host=_site_",
+              "-Cprocessors=1",
+              "-Cdiscovery.seed_hosts=node-2,node-3",
+              "-Ccluster.initial_master_nodes=node-1,node-2,node-3",
+              "-Cgateway.expected_data_nodes=3",
+              "-Cgateway.recover_after_data_nodes=2"]
+    networks:
+      - app-tier
+
+  node-2:
+    image: crate:5.10.5
+    volumes:
+      - "cratedb_data_2:/data"
+    command: ["crate",
+              "-Ccluster.name=crate-docker-cluster",
+              "-Cnode.name=node-2",
+              "-Cnode.data=true",
+              "-Cprocessors=1",
+              "-Cnetwork.host=_site_",
+              "-Cdiscovery.seed_hosts=node-1,node-3",
+              "-Ccluster.initial_master_nodes=node-1,node-2,node-3",
+              "-Cgateway.expected_data_nodes=3",
+              "-Cgateway.recover_after_data_nodes=2"]
+    networks:
+      - app-tier
+
+  node-3:
+    image: crate:5.10.5
+    volumes:
+      - "cratedb_data_3:/data"
+    command: ["crate",
+              "-Ccluster.name=crate-docker-cluster",
+              "-Cnode.name=node-3",
+              "-Cnode.data=true",
+              "-Cnetwork.host=_site_",
+              "-Cprocessors=1",
+              "-Cdiscovery.seed_hosts=node-1,node-2",
+              "-Ccluster.initial_master_nodes=node-1,node-2,node-3",
+              "-Cgateway.expected_data_nodes=3",
+              "-Cgateway.recover_after_data_nodes=2"]
+    networks:
+      - app-tier
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mqtt5
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./config:/mosquitto/config:rw
+      - ./data:/mosquitto/data:rw
+      - ./log:/mosquitto/log:rw
+    restart: unless-stopped
+    networks:
+      - app-tier
+
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Berlin
+    ports:
+      - "1880:1880"
+    volumes:
+      - "node-red_data:/data"
+    networks:
+      - app-tier
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+    volumes:
+      - "grafana_data:/var/lib/grafana"
+    networks:
+      - app-tier
+
+volumes:
+  cratedb_data_1:
+    driver: local
+  cratedb_data_2:
+    driver: local
+  cratedb_data_3:
+    driver: local
+  node-red_data:
+    driver: local
+  grafana_data:
+    driver: local
+  config:
+    driver: local
+  data:
+    driver: local
+  log:
+    driver: local
