@@ -1,1 +1,3 @@
 data/download.nc
+data/.env
+.venv
