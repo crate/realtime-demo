@@ -124,3 +124,17 @@ cd data
 pip3 install -U -r requirements-dev.txt
 black .
 ```
+
+## Create Lambda code
+
+From the `msk-to-crate-python` directory, run:
+
+```sam build && sam deploy``` 
+
+This will first build, then deploy the lambda code (including any pip dependencies) to AWS lambda. It will be viewable at:
+
+`https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/real-time-demo-app-msktocratepython-zHHmuN8vwScx?subtab=envVars&tab=configure`
+
+The `sam` cli command can be installed with homebrew from `aws-sam-cli' on macOS.
+
+It creates a hidden directory `.aws-sam`, or should!

@@ -1,4 +1,2 @@
 data/download.nc
-data/.env
-.venv
-__pycache__
+/msk-to-crate-python/.aws-sam
