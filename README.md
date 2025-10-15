@@ -22,7 +22,6 @@ The solution consists of three major layers running in the AWS Cloud:
 **Flow:**  
 `EC2 → Kafka (MKS)`
 
----
 
 ### Data Consumer
 **Purpose:** Listen for new temperature events, process them, and write batches into CrateDB.
@@ -37,7 +36,6 @@ The solution consists of three major layers running in the AWS Cloud:
 **Flow:**  
 `Kafka → Lambda → CrateDB`
 
----
 
 ### User Interface
 **Purpose:** Visualize the temperature data in real time.
@@ -56,7 +54,6 @@ The solution consists of three major layers running in the AWS Cloud:
 
 **Flow:**  
 `CrateDB → Grafana → Users`
-
 
 
 ## Data Producer
