@@ -4,6 +4,7 @@ configurable rate into AWS MSK.
 
 The Kafka topic will be created if it doesn't exist yet.
 """
+
 import os
 import logging
 import time

@@ -1,4 +1,5 @@
 "The producer that will write data into Kafka"
+
 import logging
 import json
 from kafka import KafkaProducer
