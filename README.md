@@ -125,6 +125,7 @@ pip3 install -U -r requirements-dev.txt
 black .
 ```
 
+<<<<<<< HEAD
 ## Create Lambda code
 
 From the `msk-to-crate-python` directory, run:
@@ -147,3 +148,5 @@ CRATEDB_USER    = CrateDB username
 CRATEDB_PASS    = CrateDB password
 CRATEDB_PORT    = CrateDB port for HTTP, typically 4200
 SOURCE_TOPIC    = Topic name, excluding the 'records' first part of the path.
+=======
+>>>>>>> 0332503 (Added architecture diagram to readme as well as building block description)
