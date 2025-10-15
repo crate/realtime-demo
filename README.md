@@ -2,7 +2,64 @@
 
 A demo of CrateDB's real-time analytics capabilities.
 
-## Data Generation
+## Architecture Overview
+
+![Architecture Diagram](./docs/architecture.png)
+
+The solution consists of three major layers running in the AWS Cloud:
+
+### Data Producer (Temperature Data)
+**Purpose:** Simulate and send temperature data events into the system.
+
+- **AWS EC2**  
+  Hosts a lightweight data generator script that loads temperature readings from a source dataset.
+  These readings are serialized into JSON events.
+
+- **Event Stream (Amazon MKS / Kafka)**  
+  The producer publishes these temperature events to a Kafka topic.  
+  Kafka provides scalable, fault-tolerant buffering between producers and consumers.
+
+**Flow:**  
+`EC2 → Kafka (MKS)`
+
+---
+
+### Data Consumer
+**Purpose:** Listen for new temperature events, process them, and write batches into CrateDB.
+
+- **AWS Lambda**  
+  Subscribes to the Kafka topic and triggers upon new events.  
+  Processes messages and groups them into batches.
+
+- **CrateDB Cloud**  
+  The Lambda function writes the processed temperature data into **CrateDB**
+
+**Flow:**  
+`Kafka → Lambda → CrateDB`
+
+---
+
+### User Interface
+**Purpose:** Visualize the temperature data in real time.
+
+- **AWS EC2 (Frontend Host)**  
+  Runs a **Grafana** instance, accessible to users via a browser.
+
+- **Grafana Dashboard**  
+  Connects directly to CrateDB using its PostgreSQL endpoint.  
+  Executes queries to fetch and visualize temperature metrics such as:
+  - Current and historical readings
+  - Geo/time-based charts
+
+- **Users**  
+  Access the Grafana dashboard through a secure web interface.
+
+**Flow:**  
+`CrateDB → Grafana → Users`
+
+
+
+## Data Producer
 
 We use publicly available data from the [Climate Data Store](https://cds.climate.copernicus.eu/). The [ERA5-Land](https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview) data set includes atmospheric variables, such as air temperature and air humidity from around the globe.
 
