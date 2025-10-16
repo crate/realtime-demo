@@ -15,12 +15,12 @@ The solution consists of three major layers running in the AWS Cloud:
   Hosts a lightweight data generator script that loads temperature readings from a source dataset.
   These readings are serialized into JSON events.
 
-- **Event Stream (Amazon MKS / Kafka)**  
+- **Event Stream (Amazon MSK / Kafka)**  
   The producer publishes these temperature events to a Kafka topic.  
   Kafka provides scalable, fault-tolerant buffering between producers and consumers.
 
 **Flow:**  
-`EC2 → Kafka (MKS)`
+`EC2 → Kafka (MSK)`
 
 
 ### Data Consumer
