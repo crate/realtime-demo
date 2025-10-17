@@ -53,7 +53,7 @@ def main() -> None:
     # the timeframe of the report.
     # Example for the 1st and 2nd of October 2025:
     #   download_file(2025, 10, ["01", "02"])
-    if not bool(os.environ["SKIP_DOWNLOAD"]):
+    if os.environ["SKIP_DOWNLOAD"].lower() in ["false", "0"]:
         logging.info("Downloading report")
         parser.download_file()
 
