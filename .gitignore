@@ -1,3 +1,4 @@
 data/download.nc
 data/.env
 .venv
+__pycache__
