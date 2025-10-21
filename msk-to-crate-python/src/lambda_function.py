@@ -13,6 +13,7 @@ CRATEDB_USER = os.getenv("CRATEDB_USER")
 CRATEDB_PORT = os.getenv("CRATEDB_PORT")
 CRATEDB_PASS = os.getenv("CRATEDB_PASS")
 CRATEDB_DB = os.getenv("CRATEDB_DB")
+SOURCE_TOPIC = os.getenv("SOURCE_TOPIC")
 
 # Globals
 _cold_start = True
@@ -102,7 +103,7 @@ def _cratedb_insert(payloads):
     try:
         cur = conn.cursor()
         # Quote the column name "timestamp" to avoid conflicts with reserved words
-        cur.executemany(
+        result = cur.executemany(
             'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
             rows
         )
@@ -110,6 +111,8 @@ def _cratedb_insert(payloads):
         return {
             "ok": True,
             "inserted": len(rows),
+            "actual_inserted": result['rowcount'], # Suggestion from Niklas, to also add return value for rows inserted
+            "all_inserted": len(rows) == int(result['rowcount']),
             "skipped": len(errors),
             "errors": errors  # keep for visibility
         }
@@ -122,7 +125,7 @@ def lambda_handler(event, context):
     global _cold_start
 
     # Decompose the 'event' JSON parameter, there are other elements that are ignored here
-    records = event['records']['dev-1-0']
+    records = event['records'][str(SOURCE_TOPIC)]
     payloads = []
     for m in records:
         if "value" not in m:
