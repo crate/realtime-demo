@@ -107,12 +107,17 @@ def _cratedb_insert(payloads):
             'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
             rows
         )
-
+        
+        # Suggestion from Niklas, to also add return value for rows inserted
+        actual_inserted = 0
+        for i in result:
+            actual_inserted += int(i['rowcount'])
+        
         return {
             "ok": True,
             "inserted": len(rows),
-            "actual_inserted": result['rowcount'], # Suggestion from Niklas, to also add return value for rows inserted
-            "all_inserted": len(rows) == int(result['rowcount']),
+            "actual_inserted": actual_inserted, 
+            "all_inserted": len(rows) == actual_inserted,
             "skipped": len(errors),
             "errors": errors  # keep for visibility
         }
