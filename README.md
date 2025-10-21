@@ -138,3 +138,12 @@ This will first build, then deploy the lambda code (including any pip dependenci
 The `sam` cli command can be installed with homebrew from `aws-sam-cli' on macOS.
 
 It creates a hidden directory `.aws-sam`, or should!
+
+Also, there are several environment variables that need defining against the Lambda, these are:
+
+CRATEDB_DB      = CrateDB database name (typically 'crate')
+CRATEDB_HOST    = CrateDB host name
+CRATEDB_USER    = CrateDB username
+CRATEDB_PASS    = CrateDB password
+CRATEDB_PORT    = CrateDB port for HTTP, typically 4200
+SOURCE_TOPIC    = Topic name, excluding the 'records' first part of the path.
