@@ -59,21 +59,29 @@ def _row_from_payload(p):
     Map a payload dict to (timestamp, temperature, latitude, longitude) tuple.
     Returns (tuple, None) on success, or (None, reason) on failure.
     """
-    ts = p.get("timestamp") 
-    tmp = p.get("temperature") 
-    lat = p.get("latitude") 
-    lon = p.get("longitude") 
+    ts = p.get("timestamp")
+    tmp = p.get("temperature")
+    lat = p.get("latitude")
+    lon = p.get("longitude")
 
     try:
-        ts = int(ts) / 1000.0 # This is because the received data is in ns, not ms
+        ts = int(ts) / 1000.0  # This is because the received data is in ns, not ms
         tmp = float(tmp) if tmp is not None else None
         lat = float(lat) if lat is not None else None
         lon = float(lon) if lon is not None else None
     except (TypeError, ValueError):
         return None, "Non-numeric timestamp/temp/lat/lon"
 
-    missing = [k for k, v in (("timestamp", ts), ("temperature", tmp),
-                              ("latitude", lat), ("longitude", lon)) if v is None]
+    missing = [
+        k
+        for k, v in (
+            ("timestamp", ts),
+            ("temperature", tmp),
+            ("latitude", lat),
+            ("longitude", lon),
+        )
+        if v is None
+    ]
     if missing:
         return None, f"Missing fields: {', '.join(missing)}"
 
@@ -98,39 +106,50 @@ def _cratedb_insert(payloads):
             errors.append({"index": i, "payload": p, "error": err})
 
     if not rows:
-        return {"ok": False, "inserted": 0, "skipped": len(errors), "errors": errors or ["No valid rows"]}
+        return {
+            "ok": False,
+            "inserted": 0,
+            "skipped": len(errors),
+            "errors": errors or ["No valid rows"],
+        }
 
     try:
         cur = conn.cursor()
         # Quote the column name "timestamp" to avoid conflicts with reserved words
         result = cur.executemany(
             'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
-            rows
+            rows,
         )
-        
+
         # Suggestion from Niklas, to also add return value for rows inserted
         actual_inserted = 0
         for i in result:
-            actual_inserted += int(i['rowcount'])
-        
+            actual_inserted += int(i["rowcount"])
+
         return {
             "ok": True,
             "inserted": len(rows),
-            "actual_inserted": actual_inserted, 
+            "actual_inserted": actual_inserted,
             "all_inserted": len(rows) == actual_inserted,
             "skipped": len(errors),
-            "errors": errors  # keep for visibility
+            "errors": errors,  # keep for visibility
         }
     except Exception as e:
         logger.error("CrateDB bulk insert failed: %s", e)
-        return {"ok": False, "error": str(e), "inserted": 0, "skipped": len(errors), "errors": errors}
+        return {
+            "ok": False,
+            "error": str(e),
+            "inserted": 0,
+            "skipped": len(errors),
+            "errors": errors,
+        }
 
 
 def lambda_handler(event, context):
     global _cold_start
 
     # Decompose the 'event' JSON parameter, there are other elements that are ignored here
-    records = event['records'][str(SOURCE_TOPIC)]
+    records = event["records"][str(SOURCE_TOPIC)]
     payloads = []
     for m in records:
         if "value" not in m:
