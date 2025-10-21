@@ -65,7 +65,7 @@ def _row_from_payload(p):
     lon = p.get("longitude")
 
     try:
-        ts = int(ts) / 1000.0  # This is because the received data is in ns, not ms
+        ts = int(ts) / 1000000.0  # This is because the received data is in ns, not ms
         tmp = float(tmp) if tmp is not None else None
         lat = float(lat) if lat is not None else None
         lon = float(lon) if lon is not None else None
