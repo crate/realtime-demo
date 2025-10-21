@@ -106,10 +106,6 @@ def _cratedb_insert(payloads):
             'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
             rows
         )
-        try:
-            conn.commit()
-        except Exception:
-            pass
 
         return {
             "ok": True,
@@ -136,7 +132,7 @@ def lambda_handler(event, context):
             payloads.append(json.loads(txt))
         except json.JSONDecodeError:
             payloads.append(txt)
-    logger.info(payloads)
+    logger.debug(payloads)
 
     # On cold start, test connections
     if _cold_start:
