@@ -7,7 +7,7 @@ from crate import client as crate_client  # pip: crate
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Management Crate cluster needs the following environment variables
+# Management CrateDB cluster needs the following environment variables
 CRATEDB_HOST = os.getenv("CRATEDB_HOST")
 CRATEDB_USER = os.getenv("CRATEDB_USER")
 CRATEDB_PORT = os.getenv("CRATEDB_PORT")
