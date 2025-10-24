@@ -48,14 +48,14 @@ def main() -> None:
     )
 
     # Generate the data we want to ingest
-    parser = Parser()
+    parser = Parser("DEU")
     # The download_file method takes optional parameters if you want to change
     # the timeframe of the report.
     # Example for the 1st and 2nd of October 2025:
     #   download_file(2025, 10, ["01", "02"])
     if os.environ["SKIP_DOWNLOAD"].lower() in ["false", "0"]:
         logging.info("Downloading report")
-        parser.download_file()
+        parser.download_file(2025, "08", ["10", "11", "12", "13", "14"])
 
     logging.info("Parsing report")
     json_documents = parser.to_json()
