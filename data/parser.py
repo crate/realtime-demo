@@ -5,9 +5,10 @@ and converts it to JSON documents.
 
 from typing import Dict, List
 import cdsapi
+import logging
 import numpy as np
 import xarray as xr
-from data.geo import PointTester
+from geo import PointTester
 
 
 class Parser:
@@ -17,6 +18,9 @@ class Parser:
         self,
         country_iso3: str = "DEU",
     ):
+        # Load geo bounds
+        self.geo = PointTester("geo/ne_110m_admin_0_countries.shp", country_iso3)
+
         # The name of the file to store the report
         self.file_name: str = "download.nc"
 
@@ -33,10 +37,8 @@ class Parser:
             "frequency": "1_hourly",
             "data_format": "netcdf",
             "download_format": "unarchived",
+            "area": self.geo.bounds()
         }
-
-        # Load geo bounds
-        self.geo = PointTester("geo/ne_110m_admin_0_countries.shp", country_iso3)
 
     def download_file(
         self,
@@ -58,9 +60,7 @@ class Parser:
         xrds = xr.open_dataset(self.file_name)
 
         df = xrds.data_vars[self.variable_name].to_dataframe()
-
-        # So we can only get points within desired country
-        tester = PointTester("geo/ne_110m_admin_0_countries.shp")
+        logging.info(f"There are {df.size} total data points")
 
         result = []
         for _, row in df.iterrows():
@@ -80,4 +80,5 @@ class Parser:
                     }
                 )
 
+        logging.info(f"Found {len(result)} matching data points")
         return result

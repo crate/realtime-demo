@@ -34,13 +34,14 @@ def main() -> None:
         int(os.environ["AWS_MKS_TOPIC_REPLICATION"]),
     )
 
-    # Generate the data we want to ingest
+    # Generate the data we want to ingest, passing in an ISO-A3 code
     parser = Parser("NLD")
+    
     # The download_file method takes optional parameters if you want to change
     # the timeframe of the report.
     # Example for the 1st and 2nd of October 2025:
     #   download_file(2025, 10, ["01", "02"])
-    # parser.download_file(2025, "08", ["10", "11", "12", "13", "14"])
+    parser.download_file(2025, "08", ["10", "11", "12", "13", "14"])
     json_documents = parser.to_json()
     logging.info(f"Found {len(json_documents)} JSON documents to ingest")
 

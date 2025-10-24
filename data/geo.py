@@ -64,6 +64,10 @@ class PointTester:
         pt = Point(lon, lat)  # shapely uses (x, y) == (lon, lat)
         return self._geom_prepared.covers(pt) if self._include_border else self._geom_prepared.contains(pt)
 
+    # Get bounds so we don't get TOO much unnecessary data
+    def bounds(self) -> list[float]:
+        return [self._miny, self._minx, self._maxy, self._maxx]
+ 
     # Internal helpers
     def _select_by_iso3(self, gdf: gpd.GeoDataFrame, iso3: str) -> gpd.GeoDataFrame:
         for col in self._ISO3_FIELDS:
