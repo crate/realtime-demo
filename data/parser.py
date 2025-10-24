@@ -7,12 +7,16 @@ from typing import Dict, List
 import cdsapi
 import numpy as np
 import xarray as xr
+from data.geo import PointTester
 
 
 class Parser:
     "Parses a NetCDF file"
 
-    def __init__(self):
+    def __init__(
+        self,
+        country_iso3: str = "DEU",
+    ):
         # The name of the file to store the report
         self.file_name: str = "download.nc"
 
@@ -30,6 +34,9 @@ class Parser:
             "data_format": "netcdf",
             "download_format": "unarchived",
         }
+
+        # Load geo bounds
+        self.geo = PointTester("geo/ne_110m_admin_0_countries.shp", country_iso3)
 
     def download_file(
         self,
@@ -52,6 +59,9 @@ class Parser:
 
         df = xrds.data_vars[self.variable_name].to_dataframe()
 
+        # So we can only get points within desired country
+        tester = PointTester("geo/ne_110m_admin_0_countries.shp")
+
         result = []
         for _, row in df.iterrows():
             value = row[self.variable_name].item()
@@ -59,13 +69,15 @@ class Parser:
             if np.isnan(value):
                 continue
 
-            result.append(
-                {
-                    "timestamp": row.name[0].value,
-                    "temperature": value,
-                    "latitude": row.name[1],
-                    "longitude": row.name[2],
-                }
-            )
+            # Within desired country?
+            if self.geo.contains_latlon(float(row.name[1]), float(row.name[2])):
+                result.append(
+                    {
+                        "timestamp": row.name[0].value,
+                        "temperature": value,
+                        "latitude": row.name[1],
+                        "longitude": row.name[2],
+                    }
+                )
 
         return result

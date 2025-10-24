@@ -65,13 +65,13 @@ def _row_from_payload(p):
     lon = p.get("longitude")
 
     try:
-        ts = int(ts) / 1000000.0  # This is because the received data is in ns, not ms
-        tmp = float(tmp) if tmp is not None else None
-        lat = float(lat) if lat is not None else None
-        lon = float(lon) if lon is not None else None
+        ts = int(ts) / 1000000000  # This is because the received data is in ns, not ms
+        tmp = float(tmp) - 273.15 # Adjust from Kelvin to C
+        lat = float(lat)
+        lon = float(lon)
     except (TypeError, ValueError):
         return None, "Non-numeric timestamp/temp/lat/lon"
-
+    
     missing = [
         k
         for k, v in (
