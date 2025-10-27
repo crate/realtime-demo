@@ -5,14 +5,19 @@ and converts it to JSON documents.
 
 from typing import Dict, List
 import cdsapi
+import logging
 import numpy as np
 import xarray as xr
+from geo import PointTester
 
 
 class Parser:
     "Parses a NetCDF file"
 
-    def __init__(self):
+    def __init__(self, country_iso3: str = "DEU"):
+        # Load geo polygon bounds
+        self.geo = PointTester("geo/ne_110m_admin_0_countries.shp", country_iso3)
+
         # The name of the file to store the report
         self.file_name: str = "download.nc"
 
@@ -29,6 +34,7 @@ class Parser:
             "frequency": "1_hourly",
             "data_format": "netcdf",
             "download_format": "unarchived",
+            "area": self.geo.bounds(),
         }
 
     def download_file(
@@ -51,6 +57,7 @@ class Parser:
         xrds = xr.open_dataset(self.file_name)
 
         df = xrds.data_vars[self.variable_name].to_dataframe()
+        logging.info(f"There are {df.size} total data points")
 
         result = []
         for _, row in df.iterrows():
@@ -59,13 +66,16 @@ class Parser:
             if np.isnan(value):
                 continue
 
-            result.append(
-                {
-                    "timestamp": row.name[0].value,
-                    "temperature": value,
-                    "latitude": row.name[1],
-                    "longitude": row.name[2],
-                }
-            )
+            # Within desired country?
+            if self.geo.contains_latlon(float(row.name[1]), float(row.name[2])):
+                result.append(
+                    {
+                        "timestamp": row.name[0].value,
+                        "temperature": value,
+                        "latitude": row.name[1],
+                        "longitude": row.name[2],
+                    }
+                )
 
+        logging.info(f"Found {len(result)} matching data points")
         return result
