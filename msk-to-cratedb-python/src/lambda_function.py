@@ -56,21 +56,27 @@ def _init_cratedb_connection():
 
 def _row_from_payload(p):
     """
-    Map a payload dict to (timestamp, temperature, latitude, longitude) tuple.
+    Map a payload dict to (timestamp, temperature, u10, v10, pressure, latitude, longitude) tuple.
     Returns (tuple, None) on success, or (None, reason) on failure.
     """
     ts = p.get("timestamp")
     tmp = p.get("temperature")
+    u10 = p.get("u10")
+    v10 = p.get("v10")
+    pressure = p.get("pressure")
     lat = p.get("latitude")
     lon = p.get("longitude")
 
     try:
         ts = int(ts) / 1000000000  # This is because the received data is in ns, not ms
         tmp = float(tmp) - 273.15 # Adjust from Kelvin to C
+        u10 = float(u10)
+        v10 = float(v10)
+        pressure = float(pressure)
         lat = float(lat)
         lon = float(lon)
     except (TypeError, ValueError):
-        return None, "Non-numeric timestamp/temp/lat/lon"
+        return None, "Non-numeric timestamp/temp/lat/lon/u10/v10/pressure"
 
     missing = [
         k
@@ -79,13 +85,16 @@ def _row_from_payload(p):
             ("temperature", tmp),
             ("latitude", lat),
             ("longitude", lon),
+            ("u10", u10),
+            ("v10", v10),
+            ("pressure", pressure),
         )
         if v is None
     ]
     if missing:
         return None, f"Missing fields: {', '.join(missing)}"
 
-    return (ts, tmp, lat, lon), None
+    return (ts, tmp, lat, lon, u10, v10, pressure), None
 
 
 def _cratedb_insert(payloads):
@@ -117,7 +126,7 @@ def _cratedb_insert(payloads):
         cur = conn.cursor()
         # Quote the column name "timestamp" to avoid conflicts with reserved words
         result = cur.executemany(
-            'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
+            'INSERT INTO demo.temperature_object(data) VALUES ({"timestamp" = ?, "temperature" = ?, "latitude" = ?, "longitude" = ?, "u10" = ?, "v10" = ?, "pressure" = ?});',
             rows,
         )
 
