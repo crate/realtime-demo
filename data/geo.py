@@ -5,6 +5,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 from shapely.prepared import prep
 
+
 class PointTester:
     """
     Point-in-polygon tester using a local .shp file.
@@ -16,7 +17,14 @@ class PointTester:
     """
 
     # Common field names in country admin datasets
-    _ISO3_FIELDS: Sequence[str] = ("ISO_A3", "iso_a3", "ADM0_A3", "WB_A3", "SOV_A3", "GU_A3")
+    _ISO3_FIELDS: Sequence[str] = (
+        "ISO_A3",
+        "iso_a3",
+        "ADM0_A3",
+        "WB_A3",
+        "SOV_A3",
+        "GU_A3",
+    )
     _NAME_FIELDS: Sequence[str] = ("NAME_EN", "NAME", "ADMIN", "admin", "COUNTRY")
 
     def __init__(
@@ -62,12 +70,16 @@ class PointTester:
         if not (self._minx <= lon <= self._maxx and self._miny <= lat <= self._maxy):
             return False
         pt = Point(lon, lat)  # shapely uses (x, y) == (lon, lat)
-        return self._geom_prepared.covers(pt) if self._include_border else self._geom_prepared.contains(pt)
+        return (
+            self._geom_prepared.covers(pt)
+            if self._include_border
+            else self._geom_prepared.contains(pt)
+        )
 
     # Get bounds so we don't get TOO much unnecessary data
     def bounds(self) -> list[float]:
         return [self._miny, self._minx, self._maxy, self._maxx]
- 
+
     # Internal helpers
     def _select_by_iso3(self, gdf: gpd.GeoDataFrame, iso3: str) -> gpd.GeoDataFrame:
         for col in self._ISO3_FIELDS:
@@ -77,7 +89,9 @@ class PointTester:
                     return de
         return gpd.GeoDataFrame(geometry=[], crs=gdf.crs)
 
-    def _select_by_name(self, gdf: gpd.GeoDataFrame, name_upper: str) -> gpd.GeoDataFrame:
+    def _select_by_name(
+        self, gdf: gpd.GeoDataFrame, name_upper: str
+    ) -> gpd.GeoDataFrame:
         for col in self._NAME_FIELDS:
             if col in gdf.columns:
                 # compare uppercase for robustness
