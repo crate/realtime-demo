@@ -17,7 +17,7 @@ class Parser:
     def __init__(self, country_iso3: str = "DEU"):
         # Load geo polygon bounds
         self.geo = PointTester("geo/ne_110m_admin_0_countries.shp", country_iso3)
-        
+
         # The name of the file to store the report
         self.file_name: str = "download.nc"
 
@@ -34,7 +34,7 @@ class Parser:
             "frequency": "1_hourly",
             "data_format": "netcdf",
             "download_format": "unarchived",
-            "area": self.geo.bounds()
+            "area": self.geo.bounds(),
         }
 
     def download_file(
@@ -67,7 +67,7 @@ class Parser:
                 continue
 
             # Within desired country?
-            if self.geo.contains_latlon(float(row.name[1]), float(row.name[2])):            
+            if self.geo.contains_latlon(float(row.name[1]), float(row.name[2])):
                 result.append(
                     {
                         "timestamp": row.name[0].value,
