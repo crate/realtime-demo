@@ -115,9 +115,8 @@ def _cratedb_insert(payloads):
 
     try:
         cur = conn.cursor()
-        # Quote the column name "timestamp" to avoid conflicts with reserved words
         result = cur.executemany(
-            'INSERT INTO demo.temperature("timestamp", temperature, latitude, longitude) VALUES (?, ?, ?, ?)',
+            'INSERT INTO demo.temperature_object(data) VALUES ({"timestamp" = ?, "temperature" = ?, "latitude" = ?, "longitude" = ?});',
             rows,
         )
 
