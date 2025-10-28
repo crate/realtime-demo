@@ -58,8 +58,19 @@ def main() -> None:
         parser.download_file(2025, "08", ["10", "11", "12", "13", "14"])
 
     logging.info("Parsing report")
-    json_documents = parser.to_json()
-    logging.info("Found %s JSON documents to ingest", len(json_documents))
+    json_documents_t2m = parser.to_json("2m_temperature_0_daily-mean.nc", "t2m", "temperature")
+    json_documents_u10 = parser.to_json("10m_u_component_of_wind_0_daily-mean.nc", "u10", "u10")
+    json_documents_v10 = parser.to_json("10m_v_component_of_wind_0_daily-mean.nc", "v10", "v10")
+    json_documents_sp = parser.to_json("surface_pressure_0_daily-mean.nc", "sp", "pressure")
+
+    logging.info(f"Found {len(json_documents_t2m)} t2m JSON documents to ingest")
+    logging.info(f"Found {len(json_documents_u10)} u10 JSON documents to ingest")
+    logging.info(f"Found {len(json_documents_v10)} v10 JSON documents to ingest")
+    logging.info(f"Found {len(json_documents_sp)} sp JSON documents to ingest")
+
+    # Now combine all into a single set of data    
+    json_documents = Parser.merge_json_documents(json_documents_t2m, json_documents_u10, json_documents_v10, json_documents_sp)
+    logging.info(f"Merged into {len(json_documents)} combined documents")
 
     # Ingest the data into AWS MSK
     kafka_producer = MSKKafkaProducer(
