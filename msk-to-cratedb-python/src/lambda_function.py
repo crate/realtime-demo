@@ -69,7 +69,7 @@ def _row_from_payload(p):
 
     try:
         ts = int(ts) / 1000000000  # This is because the received data is in ns, not ms
-        tmp = float(tmp) - 273.15 # Adjust from Kelvin to C
+        tmp = float(tmp) - 273.15  # Adjust from Kelvin to C
         u10 = float(u10)
         v10 = float(v10)
         pressure = float(pressure)
