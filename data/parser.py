@@ -57,7 +57,7 @@ class Parser:
             self.file_name,
         )
 
-        # It contains at least one .nc file inside as it's a zip        
+        # It contains at least one .nc file inside as it's a zip
         if zipfile.is_zipfile(self.file_name):
             with zipfile.ZipFile(self.file_name) as zf:
                 zf.extractall()
@@ -86,7 +86,7 @@ class Parser:
                         "timestamp": row.name[0].value,
                         "latitude": row.name[1],
                         "longitude": row.name[2],
-                        field_name: value
+                        field_name: value,
                     }
                 )
 
