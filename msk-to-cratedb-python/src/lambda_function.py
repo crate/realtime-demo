@@ -78,23 +78,7 @@ def _row_from_payload(p):
     except (TypeError, ValueError):
         return None, "Non-numeric timestamp/temp/lat/lon/u10/v10/pressure"
 
-    missing = [
-        k
-        for k, v in (
-            ("timestamp", ts),
-            ("temperature", tmp),
-            ("latitude", lat),
-            ("longitude", lon),
-            ("u10", u10),
-            ("v10", v10),
-            ("pressure", pressure),
-        )
-        if v is None
-    ]
-    if missing:
-        return None, f"Missing fields: {', '.join(missing)}"
-
-    return (ts, tmp, lat, lon, u10, v10, pressure), None
+    return (ts, lon, lat, lon, lat, tmp, u10, v10, pressure), None
 
 
 def _cratedb_insert(payloads):
@@ -126,7 +110,7 @@ def _cratedb_insert(payloads):
         cur = conn.cursor()
         # Quote the column name "timestamp" to avoid conflicts with reserved words
         result = cur.executemany(
-            'INSERT INTO demo.temperature_object(data) VALUES ({"timestamp" = ?, "temperature" = ?, "latitude" = ?, "longitude" = ?, "u10" = ?, "v10" = ?, "pressure" = ?});',
+            'INSERT INTO demo.climate_data(timestamp, geo_location, data) VALUES (?, [?, ?], {"longitude" = ?, "latitude" = ?, "temperature" = ?, "u10" = ?, "v10" = ?, "pressure" = ?});',
             rows,
         )
 
