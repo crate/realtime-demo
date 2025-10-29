@@ -70,7 +70,7 @@ class Parser:
         day: List[str] = ["01"],
     ) -> None:
         "Downloads and saves the requested dataset"
-        client = cdsapi.Client()
+        client = cdsapi.Client(quiet=True)
 
         client.retrieve(
             self.dataset,
