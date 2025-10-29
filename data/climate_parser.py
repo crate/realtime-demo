@@ -15,7 +15,7 @@ from geo import PointTester
 logger = logging.getLogger(__name__)
 
 
-class Parser:
+class ClimateParser:
     "Parses a NetCDF file"
 
     def __init__(

@@ -8,7 +8,7 @@ The Kafka topic will be created if it doesn't exist yet.
 import os
 import logging
 import time
-from parser import Parser
+from climate_parser import ClimateParser
 from dotenv import load_dotenv
 from msk_kafka_admin import MSKKafkaAdmin
 from msk_kafka_producer import MSKKafkaProducer
@@ -50,7 +50,7 @@ def main() -> None:
     )
 
     # Generate the data we want to ingest
-    parser = Parser("DEU")
+    parser = ClimateParser("DEU")
     # The download_file method takes optional parameters if you want to change
     # the timeframe of the report.
     # Example for the 1st and 2nd of October 2025:
