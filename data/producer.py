@@ -8,16 +8,18 @@ The Kafka topic will be created if it doesn't exist yet.
 import os
 import logging
 import time
-from parser import Parser
+from climate_parser import ClimateParser
 from dotenv import load_dotenv
 from msk_kafka_admin import MSKKafkaAdmin
 from msk_kafka_producer import MSKKafkaProducer
 
 logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)-8s %(message)s",
     level=logging.INFO,
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -48,25 +50,25 @@ def main() -> None:
     )
 
     # Generate the data we want to ingest
-    parser = Parser("DEU")
+    parser = ClimateParser("DEU")
     # The download_file method takes optional parameters if you want to change
     # the timeframe of the report.
     # Example for the 1st and 2nd of October 2025:
     #   download_file(2025, 10, ["01", "02"])
     if os.environ["SKIP_DOWNLOAD"].lower() in ["false", "0"]:
-        logging.info("Downloading report")
+        logger.info("Downloading report")
         parser.download_file(2025, "08", ["10", "11", "12", "13", "14"])
 
-    logging.info("Parsing report")
-    json_documents = parser.to_json()
-    logging.info("Found %s JSON documents to ingest", len(json_documents))
+    logger.info("Parsing report")
+    json_documents = parser.to_json_combined()
+    logger.info("Received %s combined JSON documents", len(json_documents))
 
     # Ingest the data into AWS MSK
     kafka_producer = MSKKafkaProducer(
         os.environ["AWS_REGION"],
         os.environ["AWS_MSK_BOOTSTRAP_SERVER"],
     )
-    logging.info("Starting data ingestion")
+    logger.info("Starting data ingestion")
     i = 0
     for document in json_documents:
         kafka_producer.send(topic_name, document)
@@ -74,9 +76,9 @@ def main() -> None:
 
         i = i + 1
         if i % PROGRESS_INDICATOR == 0:
-            logging.info("Sent %s documents", i)
+            logger.info("Sent %s documents", i)
 
-    logging.info("Finished sending data")
+    logger.info("Finished sending data")
 
 
 if __name__ == "__main__":
