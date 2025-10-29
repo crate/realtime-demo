@@ -5,6 +5,7 @@ and converts it to JSON documents.
 
 from collections import defaultdict
 from typing import Any, Dict, List
+import logging
 import zipfile
 import cdsapi
 import numpy as np
@@ -27,13 +28,33 @@ class Parser:
 
         # https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview
         self.dataset = "derived-era5-land-daily-statistics"
+        # request_variable_name: The name of the metric as passed in the CDS API call
+        # cdf_variable_name: The name of the metric (variable) inside the NetCDF file
+        # payload_field_name: The name of the field as we want it to be returned from the parser
+        self.variables = [
+            {
+                "request_variable_name": "2m_temperature",
+                "cdf_variable_name": "t2m",
+                "payload_field_name": "temperature",
+            },
+            {
+                "request_variable_name": "10m_u_component_of_wind",
+                "cdf_variable_name": "u10",
+                "payload_field_name": "u10",
+            },
+            {
+                "request_variable_name": "10m_v_component_of_wind",
+                "cdf_variable_name": "v10",
+                "payload_field_name": "v10",
+            },
+            {
+                "request_variable_name": "surface_pressure",
+                "cdf_variable_name": "sp",
+                "payload_field_name": "pressure",
+            },
+        ]
         self.request = {
-            "variable": [
-                "2m_temperature",
-                "10m_u_component_of_wind",
-                "10m_v_component_of_wind",
-                "surface_pressure",
-            ],
+            "variable": list(map(lambda m: m["request_variable_name"], self.variables)),
             "daily_statistic": "daily_mean",
             "time_zone": "utc+00:00",
             "frequency": "1_hourly",
@@ -64,13 +85,16 @@ class Parser:
 
     # variable_name = The name of the variable we are interested in to extract from the report.
     # t2m stands for temperature 2 meters above the ground.
-    def to_json(self, nc_filename, variable_name, field_name) -> List[Dict]:
-        "Parses the NetCDF file and converts it to a JSON document"
+    def to_json(
+        self, nc_filename: str, variable_name: str, field_name: str
+    ) -> List[Dict[str, Any]]:
+        "Returns a list of JSON documents for a single variable"
         xrds = xr.open_dataset(nc_filename)
-        print(xrds)
 
         df = xrds.data_vars[variable_name].to_dataframe()
-        print("There are " + str(df.size) + " data points")
+        logging.info(
+            "There are %s data points for the variable %s", df.size, variable_name
+        )
 
         result = []
         for _, row in df.iterrows():
@@ -90,10 +114,12 @@ class Parser:
                     }
                 )
 
-        print("There are " + str(len(result)) + " matching data points")
+        logging.info("There are %s matching data points", len(result))
         return result
 
-    def merge_json_documents(*lists: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def merge_json_documents(
+        self, *lists: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Merge multiple lists of JSON documents (from different NetCDF variables)
         by shared timestamp, latitude, and longitude.
@@ -107,3 +133,22 @@ class Parser:
 
         # Flatten dict-of-dicts back into a list
         return list(merged.values())
+
+    def to_json_combined(self):
+        "Returns a list of JSON documents combined for all single variables"
+        results = []
+        for variable in self.variables:
+            single_variable_json = self.to_json(
+                f"{variable['request_variable_name']}_0_{self.request['daily_statistic'].replace('_', '-')}.nc",
+                variable["cdf_variable_name"],
+                variable["payload_field_name"],
+            )
+            logging.info(
+                "Found %s %s JSON documents to ingest",
+                len(single_variable_json),
+                variable["cdf_variable_name"],
+            )
+            results.append(single_variable_json)
+
+        # Now combine all into a single set of data
+        return self.merge_json_documents(*results)
