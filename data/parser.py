@@ -12,6 +12,8 @@ import numpy as np
 import xarray as xr
 from geo import PointTester
 
+logger = logging.getLogger(__name__)
+
 
 class Parser:
     "Parses a NetCDF file"
@@ -92,7 +94,7 @@ class Parser:
         xrds = xr.open_dataset(nc_filename)
 
         df = xrds.data_vars[variable_name].to_dataframe()
-        logging.info(
+        logger.info(
             "There are %s data points for the variable %s", df.size, variable_name
         )
 
@@ -114,7 +116,7 @@ class Parser:
                     }
                 )
 
-        logging.info("There are %s matching data points", len(result))
+        logger.info("There are %s matching data points", len(result))
         return result
 
     def merge_json_documents(
@@ -134,7 +136,7 @@ class Parser:
         # Flatten dict-of-dicts back into a list
         return list(merged.values())
 
-    def to_json_combined(self):
+    def to_json_combined(self) -> List[Dict[str, Any]]:
         "Returns a list of JSON documents combined for all single variables"
         results = []
         for variable in self.variables:
@@ -143,7 +145,7 @@ class Parser:
                 variable["cdf_variable_name"],
                 variable["payload_field_name"],
             )
-            logging.info(
+            logger.info(
                 "Found %s %s JSON documents to ingest",
                 len(single_variable_json),
                 variable["cdf_variable_name"],
