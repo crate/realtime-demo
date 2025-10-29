@@ -1,4 +1,5 @@
-data/download.nc
+data/*.nc
+data/download.zip
 data/.env
 .venv
 __pycache__
