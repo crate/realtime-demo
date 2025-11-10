@@ -111,6 +111,14 @@ To run the producer, simply execute it. If you want to adjust the date range tha
 python3 producer.py
 ```
 
+### Select alternate geo data
+
+The producer has embedded data, by default it will retrieve data from the Climate Data Store for Germany, to change this, update the following line in producer.py:
+
+```parser = Parser("DEU")```
+
+All ISO_A3 country codes should work here. Some countries are more complex and have many country bounds, some a distance away.
+
 ## Trigger
 
 The trigger is configured to fire on a single new Kafka (MSK) record (batch size 1). To restart the ingest from the start, delete the existing trigger and create a new one (it's very straightforward). There is only one option for MSK cluster, make sure authentication is set and to ignore bad test data, set the starting point to be the timestamp 2025-10-14T00:00:00.000Z. Set the topic to dev-1 (or a different topic as needed).
