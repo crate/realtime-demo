@@ -137,7 +137,7 @@ black .
 
 From the `msk-to-crate-python` directory, run:
 
-```sam build && sam deploy``` 
+```sam build && sam deploy```
 
 This will first build, then deploy the lambda code (including any pip dependencies) to AWS lambda. It will be viewable at:
 
@@ -155,3 +155,14 @@ CRATEDB_USER    = CrateDB username
 CRATEDB_PASS    = CrateDB password
 CRATEDB_PORT    = CrateDB port for HTTP, typically 4200
 SOURCE_TOPIC    = Topic name, excluding the 'records' first part of the path.
+
+## Creating ZIP file for Lambda function
+
+To generate a deployable ZIP archive containing the Lambda function's code and dependencies, run the corresponding bash script:
+
+```shell
+cd msk-to-cratedb-python
+./create_zip_package.sh
+```
+
+The resulting ZIP file can then be used to deploy code to a newly created Lambda function. Make sure it's not extracted and kept as a .ZIP file.
