@@ -9,6 +9,7 @@ A demo of CrateDB's real-time analytics capabilities.
 The solution consists of three major layers running in the AWS Cloud:
 
 ### Data Producer (Temperature Data)
+
 **Purpose:** Simulate and send temperature data events into the system.
 
 - **AWS EC2**
@@ -24,6 +25,7 @@ The solution consists of three major layers running in the AWS Cloud:
 
 
 ### Data Consumer
+
 **Purpose:** Listen for new temperature events, process them, and write batches into CrateDB.
 
 - **AWS Lambda**
@@ -38,6 +40,7 @@ The solution consists of three major layers running in the AWS Cloud:
 
 
 ### User Interface
+
 **Purpose:** Visualize the temperature data in real time.
 
 - **AWS EC2 (Frontend Host)**
@@ -139,22 +142,22 @@ From the `msk-to-crate-python` directory, run:
 
 ```sam build && sam deploy```
 
-This will first build, then deploy the lambda code (including any pip dependencies) to AWS lambda. It will be viewable at:
+This will first build, then deploy the lambda code (including any pip dependencies) to AWS Lambda. It will be viewable at:
 
 `https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/real-time-demo-app-msktocratepython-zHHmuN8vwScx?subtab=envVars&tab=configure`
 
-The `sam` cli command can be installed with homebrew from `aws-sam-cli' on macOS.
+The `sam` cli command can be installed with homebrew from `aws-sam-cli` on macOS.
 
 It creates a hidden directory `.aws-sam`, or should!
 
 Also, there are several environment variables that need defining against the Lambda, these are:
 
-CRATEDB_DB      = CrateDB database name (typically 'crate')
-CRATEDB_HOST    = CrateDB host name
-CRATEDB_USER    = CrateDB username
-CRATEDB_PASS    = CrateDB password
-CRATEDB_PORT    = CrateDB port for HTTP, typically 4200
-SOURCE_TOPIC    = Topic name, excluding the 'records' first part of the path.
+- `CRATEDB_DB`: CrateDB database name (typically `doc`)
+- `CRATEDB_HOST`: CrateDB host name
+- `CRATEDB_USER`: CrateDB username
+- `CRATEDB_PASS`: CrateDB password
+- `CRATEDB_PORT`: CrateDB port for HTTP, typically 4200
+- `SOURCE_TOPIC`: Topic name, excluding the `records` first part of the path
 
 ## Creating ZIP file for Lambda function
 
