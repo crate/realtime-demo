@@ -2,5 +2,8 @@ data/*.nc
 data/download.zip
 data/.env
 .venv
+.DS_Store
 __pycache__
 /msk-to-cratedb-python/.aws-sam
+/msk-to-cratedb-python/package
+/msk-to-cratedb-python/lambda.zip
