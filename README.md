@@ -155,3 +155,11 @@ CRATEDB_USER    = CrateDB username
 CRATEDB_PASS    = CrateDB password
 CRATEDB_PORT    = CrateDB port for HTTP, typically 4200
 SOURCE_TOPIC    = Topic name, excluding the 'records' first part of the path.
+
+# Creating ZIP file for Lambda function
+
+In AWS, open up the existing working Lambda function.
+
+In *Function Overview*, select the *Download* button and choose *Download function code .zip*.
+
+The resulting ZIP file can then be used to deploy code to a newly created Lambda function. Make sure it's not extracted and kept as a .ZIP file.
