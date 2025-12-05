@@ -6,7 +6,7 @@ netcdf4 < 1.8
 xarray < 2025.12
 
 # Requirements for producer
-kafka-python < 2.3
+kafka-python < 2.4
 aws-msk-iam-sasl-signer-python < 1.1
 python-dotenv < 1.3
 
