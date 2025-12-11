@@ -3,7 +3,6 @@
 import logging
 import json
 from kafka import KafkaProducer
-from msk_token_provider import MSKTokenProvider
 
 
 class MSKKafkaProducer:
@@ -16,9 +15,6 @@ class MSKKafkaProducer:
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
             retry_backoff_ms=500,
             request_timeout_ms=20000,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="OAUTHBEARER",
-            sasl_oauth_token_provider=MSKTokenProvider(aws_region),
             client_id="real-time-demo-producer",
         )
 

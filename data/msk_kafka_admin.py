@@ -2,7 +2,6 @@
 
 import logging
 from kafka.admin import KafkaAdminClient, NewTopic
-from msk_token_provider import MSKTokenProvider
 
 
 class MSKKafkaAdmin:
@@ -12,9 +11,6 @@ class MSKKafkaAdmin:
         "Initializes the client for a given bootstrap server"
         self.client = KafkaAdminClient(
             bootstrap_servers=bootstrap_server,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="OAUTHBEARER",
-            sasl_oauth_token_provider=MSKTokenProvider(aws_region),
             client_id="real-time-demo-producer",
         )
 
