@@ -234,7 +234,7 @@ Resources:
         - !Ref PrivateRouteTable
       VpcEndpointType: Gateway
       VpcId: !Ref VPC
-  KafkaClientInstanceSecurityGroup:
+  CrateDBInstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22
@@ -247,33 +247,33 @@ Resources:
   MSKSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable KafkaClientEC2Instance access to MSK Cluster
+      GroupDescription: Enable CrateDBClientEC2Instance access to MSK Cluster
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 2181
           ToPort: 2181
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
         - IpProtocol: tcp
           FromPort: 2182
           ToPort: 2182
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
         - IpProtocol: tcp
           FromPort: 9092
           ToPort: 9092
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
         - IpProtocol: tcp
           FromPort: 9094
           ToPort: 9094
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
         - IpProtocol: tcp
           FromPort: 9096
           ToPort: 9096
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
         - IpProtocol: tcp
           FromPort: 9098
           ToPort: 9098
-          SourceSecurityGroupId: !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+          SourceSecurityGroupId: !GetAtt CrateDBInstanceSecurityGroup.GroupId
   MSKSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -282,7 +282,7 @@ Resources:
       FromPort: 0
       ToPort: 65535
       SourceSecurityGroupId: !Ref MSKSecurityGroup
-  KafkaClientEC2Instance:
+  CrateDBClientEC2Instance:
     Type: AWS::EC2::Instance
     DependsOn: MSKCluster
     Properties:
@@ -295,14 +295,14 @@ Resources:
           Ref: AWS::Region
       SubnetId: !Ref PublicSubnet01
       SecurityGroupIds:
-        - !GetAtt KafkaClientInstanceSecurityGroup.GroupId
+        - !GetAtt CrateDBInstanceSecurityGroup.GroupId
       ImageId: !FindInMap
         - RegionAMI
         - !Ref AWS::Region
         - HVM64
       Tags:
         - Key: Name
-          Value: KafkaClientInstance
+          Value: CrateDBInstance
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
@@ -351,7 +351,8 @@ Resources:
                         --cluster-arn "$CLUSTER_ARN" \
                         | jq -r '.BootstrapBrokerString')
 
-          cat > .env <<EOF
+          echo "Writing out .env file"
+          cat > ~/realtime-demo/data/.env <<EOF
           AWS_MSK_BOOTSTRAP_SERVER="$BOOTSTRAP"
           AWS_MSK_TOPIC_NAME="dev-1"
           AWS_MSK_TOPIC_PARTITIONS=1
@@ -364,6 +365,10 @@ Resources:
           # one already present on the file system
           SKIP_DOWNLOAD=true
           EOF
+
+          # Now run the install.sh file in the repo
+          chmod +x /home/ec2-user/realtime-demo/install.sh
+          /home/ec2-user/realtime-demo/install.sh
 
   EC2Role:
     Type: AWS::IAM::Role
@@ -459,9 +464,9 @@ Outputs:
   MSKSecurityGroupID:
     Description: The ID of the security group created for the MSK cluster
     Value: !GetAtt MSKSecurityGroup.GroupId
-  KafkaClientEC2InstancePublicDNS:
+  CrateDBClientEC2InstancePublicDNS:
     Description: The Public DNS for the EC2 instance
-    Value: !GetAtt KafkaClientEC2Instance.PublicDnsName
+    Value: !GetAtt CrateDBClientEC2Instance.PublicDnsName
   MSKClusterArn:
     Description: The Arn for the MSK cluster
     Value: !Ref MSKCluster
