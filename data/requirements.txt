@@ -12,4 +12,4 @@ python-dotenv < 1.3
 # Requirements for Point-in-Polygon test for Germany (or other region)
 geopandas < 1.2
 shapely < 2.2
-pyproj < 3.8
+pyproj == 3.7.1
