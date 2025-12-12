@@ -286,7 +286,7 @@ Resources:
     Type: AWS::EC2::Instance
     DependsOn: MSKCluster
     Properties:
-      InstanceType: m5.large
+      InstanceType: m5.xlarge
       KeyName: !Ref KeyName
       IamInstanceProfile: !Ref EC2InstanceProfile
       AvailabilityZone: !Select
@@ -313,58 +313,24 @@ Resources:
 
           yum update -y
           amazon-linux-extras install epel -y
-          yum install -y java-1.8.0 git jq gcc10 gcc10-c++ zlib-devel python3-devel proj proj-devel
-
-          export CC=gcc10-gcc
-          export CXX=gcc10-g++
-
-          # Build toolchain for Python 3.13
-          yum groupinstall -y "Development Tools"
-          # Use OpenSSL 1.1 for modern Python builds
-          yum erase -y openssl-devel || true
-          yum install -y openssl11 openssl11-devel libffi-devel bzip2-devel zlib-devel
-
-          # EPEL + science libs for netCDF4/h5py
-          amazon-linux-extras install epel -y
-          yum install -y netcdf-devel hdf5-devel
-
-          # Build and install Python 3.13 from source
-          cd /usr/src
-          wget https://www.python.org/ftp/python/3.13.1/Python-3.13.1.tgz
-          tar -xf Python-3.13.1.tgz
-          cd Python-3.13.1
-
-          ./configure \
-            --prefix=/usr/local \
-            --enable-shared \
-            LDFLAGS="-Wl,-rpath /usr/local/lib"
-
-          make -j"$(nproc)"
-          make altinstall
-
-          # Sanity check
-          /usr/local/bin/python3.13 --version || python3.13 --version
+          yum install -y java-1.8.0 git jq gcc10 gcc10-c++ zlib-devel python3-devel proj proj-devel libxml2-devel
 
           cd /home/ec2-user
           echo "export PATH=.local/bin:$PATH" >> .bash_profile
+          echo "export AWS_REGION=${AWS::Region}" >> .bash_profile
 
-          mkdir -p kafka
-          cd kafka
-          wget https://archive.apache.org/dist/kafka/3.6.0/kafka_2.13-3.6.0.tgz
-          tar -xzf kafka_2.13-3.6.0.tgz
-          cd /home/ec2-user
-          chown -R ec2-user ./kafka
-          chgrp -R ec2-user ./kafka
-          cd /home/ec2-user/kafka/kafka_2.13-3.6.0/bin
-          echo "security.protocol=PLAINTEXT" > client.properties
+          # mkdir -p kafka
+          # cd kafka
+          # wget https://archive.apache.org/dist/kafka/3.6.0/kafka_2.13-3.6.0.tgz
+          # tar -xzf kafka_2.13-3.6.0.tgz
+          # cd /home/ec2-user
+          # chown -R ec2-user ./kafka
+          # chgrp -R ec2-user ./kafka
+          # cd /home/ec2-user/kafka/kafka_2.13-3.6.0/bin
+          # echo "security.protocol=PLAINTEXT" > client.properties
 
           cd /home/ec2-user
           git clone https://github.com/crate/realtime-demo.git -b unauthenticated
-          cd realtime-demo/data
-
-          /usr/local/bin/python3.13 -m venv .venv
-          source .venv/bin/activate
-          pip3 install -U -r requirements.txt
 
           echo "Waiting for MSK cluster to become ACTIVE..."
           while true; do
