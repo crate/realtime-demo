@@ -2,7 +2,6 @@
 
 import logging
 from kafka.admin import KafkaAdminClient, NewTopic
-from msk_token_provider import MSKTokenProvider
 
 
 class MSKKafkaAdmin:

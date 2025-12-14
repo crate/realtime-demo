@@ -3,7 +3,6 @@
 import logging
 import json
 from kafka import KafkaProducer
-from msk_token_provider import MSKTokenProvider
 
 
 class MSKKafkaProducer:
