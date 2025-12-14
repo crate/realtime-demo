@@ -244,6 +244,10 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
   MSKSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
