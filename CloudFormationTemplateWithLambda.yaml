@@ -30,6 +30,54 @@ Parameters:
   LambdaCodeS3Bucket:
     Type: String
     Description: S3 bucket containing the Lambda deployment package (zip)
+
+  LambdaCodeS3Key:
+    Type: String
+    Description: S3 key for the Lambda deployment package (zip)
+
+  KafkaTopicName:
+    Type: String
+    Default: dev-1
+    Description: Kafka topic to consume
+
+  KafkaConsumerGroupId:
+    Type: String
+    Default: msk-lambda-consumer-2025-10-14
+    Description: Consumer group (change this to force replays)
+
+  CrateDBHost:
+    Type: String
+    Description: CrateDB URL excluding prefix and suffixes, just the hostname
+
+  CrateDBPort:
+    Type: Number
+    Default: 4200
+    Description: CrateDB HTTP port
+
+  CrateDBDatabase:
+    Type: String
+    Default: crate
+    Description: CrateDB database
+
+  CrateDBUser:
+    Type: String
+    Default: admin
+    Description: CrateDB username
+
+  CrateDBPass:
+    Type: String
+    Description: CrateDB password (obtained from Cloud cluster creation)
+
+  SourceTopic:
+    Type: String
+    Default: dev-1-0
+    Description: The MSK cluster topic name (with a -0 suffix)
+
+ KafkaBatchSize:
+    Type: Number
+    Default: 100
+    Description: Number of Kafka records per batch
+    
 Mappings:
   SubnetConfig:
     VPC:
@@ -76,6 +124,67 @@ Mappings:
     sa-east-1:
       HVM64: ami-058141e091292ecf0
 Resources:
+  MskLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Includes CloudWatch Logs + ENI permissions + MSK read/access
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaMSKExecutionRole
+  MskConsumerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub msk-consumer-${EnvStage}
+      Runtime: python3.13
+      Handler: app.lambda_handler
+      Role: !GetAtt MskLambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 512
+      Code:
+        S3Bucket: !Ref LambdaCodeS3Bucket
+        S3Key: !Ref LambdaCodeS3Key
+      Environment:
+        Variables:
+          STAGE: !Ref EnvStage
+          FOO: !Ref EnvFoo
+          MSK_CLUSTER_ARN: !Ref MSKCluster
+          MSK_TOPIC: !Ref KafkaTopicName
+  MskToLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn:
+      - MSKCluster
+      - MskConsumerLambda
+    Properties:
+      FunctionName: !GetAtt MskConsumerLambda.Arn
+      EventSourceArn: !Ref MSKCluster
+      Topics:
+        - !Ref KafkaTopicName
+
+      StartingPosition: AT_TIMESTAMP
+      # 14/10/2025 00:00:00 UTC in Unix time *seconds*
+      StartingPositionTimestamp: 1760400000
+
+      # Important: offsets are per consumer group; change this to force replay
+      ConsumerGroupId: !Ref KafkaConsumerGroupId
+
+      # For MSK, Lambda creates a hyperplane ENI using the MSK cluster’s VPC config.
+      # We still provide the subnet + SG list to the mapping.
+      SourceAccessConfigurations:
+        - Type: VPC_SUBNET
+          URI: !Sub "subnet:${PrivateSubnet01}"
+        - Type: VPC_SUBNET
+          URI: !Sub "subnet:${PrivateSubnet02}"
+        - Type: VPC_SUBNET
+          URI: !Sub "subnet:${PrivateSubnet03}"
+        - Type: VPC_SECURITY_GROUP
+          URI: !Sub "security_group:${MSKSecurityGroup.GroupId}"
+
   MSKLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -483,3 +592,9 @@ Outputs:
   MSKConnectLogGroupName:
     Description: Name of the MSK Connect LogGroup created
     Value: !Ref MSKConnectLogGroup
+  MskConsumerLambdaArn:
+    Description: ARN of the MSK consumer Lambda
+    Value: !GetAtt MskConsumerLambda.Arn
+  MskToLambdaEventSourceMappingId:
+    Description: Event source mapping ID
+    Value: !Ref MskToLambdaEventSourceMapping    
