@@ -468,7 +468,7 @@ Resources:
                         | jq -r '.BootstrapBrokerString')
 
           echo "Writing out .env file"
-          cat > ~/realtime-demo/data/.env <<EOF
+          cat > /home/ec2-user/realtime-demo/data/.env <<EOF
           AWS_MSK_BOOTSTRAP_SERVER="$BOOTSTRAP"
           AWS_MSK_TOPIC_NAME="dev-1"
           AWS_MSK_TOPIC_PARTITIONS=1
