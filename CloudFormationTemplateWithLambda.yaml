@@ -29,10 +29,12 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
   LambdaCodeS3Bucket:
     Type: String
+    Default: realtime-demo-lambda
     Description: S3 bucket containing the Lambda deployment package (zip)
 
   LambdaCodeS3Key:
     Type: String
+    Default: lambda.zip
     Description: S3 key for the Lambda deployment package (zip)
 
   KafkaTopicName:
@@ -73,7 +75,7 @@ Parameters:
     Default: dev-1-0
     Description: The MSK cluster topic name (with a -0 suffix)
 
- KafkaBatchSize:
+  KafkaBatchSize:
     Type: Number
     Default: 100
     Description: Number of Kafka records per batch
@@ -140,7 +142,7 @@ Resources:
   MskConsumerLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub msk-consumer-${EnvStage}
+      FunctionName: !Sub msk-consumer
       Runtime: python3.13
       Handler: app.lambda_handler
       Role: !GetAtt MskLambdaExecutionRole.Arn
@@ -151,10 +153,12 @@ Resources:
         S3Key: !Ref LambdaCodeS3Key
       Environment:
         Variables:
-          STAGE: !Ref EnvStage
-          FOO: !Ref EnvFoo
-          MSK_CLUSTER_ARN: !Ref MSKCluster
-          MSK_TOPIC: !Ref KafkaTopicName
+          CRATEDB_HOST: !Ref CrateDBHost
+          CRATEDB_DB: !Ref CrateDBDatabase
+          CRATEDB_PASS: !Ref CrateDBPass
+          CRATEDB_USER: !Ref CrateDBUser
+          CRATEDB_PORT: !Ref CrateDBPort
+          SOURCE_TOPIC: !Ref KafkaTopicName
   MskToLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     DependsOn:
