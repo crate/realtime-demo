@@ -168,6 +168,50 @@ Resources:
       StartingPosition: AT_TIMESTAMP
       # 14/10/2025 00:00:00 UTC in Unix time *seconds*
       StartingPositionTimestamp: 1760400000
+  MskLambdaExtraPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: MskLambdaExtraAccess
+      Roles:
+        - !Ref MskLambdaExecutionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # Control-plane cluster access (already in AWSLambdaMSKExecutionRole, but harmless)
+          - Sid: MSKClusterAccess
+            Effect: Allow
+            Action:
+              - kafka:DescribeClusterV2
+              - kafka:GetBootstrapBrokers
+              - kafka:ListScramSecrets
+              - kafka-cluster:Connect
+            Resource:
+              - !Ref MSKCluster
+
+          # IAM-auth Kafka consumer group ops (only required if using IAM auth to Kafka)
+          - Sid: MSKGroupOperations
+            Effect: Allow
+            Action:
+              - kafka-cluster:AlterGroup
+              - kafka-cluster:DescribeGroup
+            Resource:
+              - !Sub
+                - arn:${AWS::Partition}:kafka:${AWS::Region}:${AWS::AccountId}:group/${ClusterName}/${ClusterUuid}/*
+                - ClusterName: !Select [1, !Split ['/', !Select [5, !Split [':', !Ref MSKCluster]]]]
+                  ClusterUuid: !Select [2, !Split ['/', !Select [5, !Split [':', !Ref MSKCluster]]]]
+
+          # IAM-auth topic read ops (only required if using IAM auth to Kafka)
+          - Sid: MSKTopicOperations
+            Effect: Allow
+            Action:
+              - kafka-cluster:DescribeTopic
+              - kafka-cluster:ReadData
+            Resource:
+              - !Sub
+                - arn:${AWS::Partition}:kafka:${AWS::Region}:${AWS::AccountId}:topic/${ClusterName}/${ClusterUuid}/${Topic}
+                - ClusterName: !Select [1, !Split ['/', !Select [5, !Split [':', !Ref MSKCluster]]]]
+                  ClusterUuid: !Select [2, !Split ['/', !Select [5, !Split [':', !Ref MSKCluster]]]]
+                  Topic: !Ref KafkaTopicName
 
   MSKLogGroup:
     Type: AWS::Logs::LogGroup
