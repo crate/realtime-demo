@@ -74,6 +74,7 @@ cd /home/ec2-user/realtime-demo/data
 /usr/local/bin/python3.13 -m venv .venv
 source .venv/bin/activate
 pip3 install -U -r requirements.txt
+python3 producer.py
 
 # Install Grafana
 sudo tee /etc/yum.repos.d/grafana.repo <<EOF

@@ -139,7 +139,7 @@ Resources:
     Properties:
       FunctionName: !Sub msk-consumer
       Runtime: python3.13
-      Handler: app.lambda_handler
+      Handler: lambda_function.lambda_handler
       Role: !GetAtt MskLambdaExecutionRole.Arn
       Timeout: 30
       MemorySize: 512
