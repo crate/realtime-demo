@@ -77,6 +77,11 @@ pip3 install -U -r requirements.txt
 source /home/ec2-user/.bash_profile
 python3 producer.py
 
+
+echo "Fetching Grafana dashboards"
+wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.1/CrateDB.Real.Time.Demo.json
+wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.1/CrateDB.Real.Time.Demo.Munich.json
+
 # Install Grafana
 sudo tee /etc/yum.repos.d/grafana.repo <<EOF
 [grafana]
