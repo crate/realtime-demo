@@ -74,6 +74,7 @@ cd /home/ec2-user/realtime-demo/data
 /usr/local/bin/python3.13 -m venv .venv
 source .venv/bin/activate
 pip3 install -U -r requirements.txt
+source /home/ec2-user/.bash_profile
 python3 producer.py
 
 # Install Grafana
@@ -91,3 +92,5 @@ sudo yum install grafana -y
 # Enable and start the service
 sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
+
+echo "Everything is installed!"
