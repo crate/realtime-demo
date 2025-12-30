@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 3,
   "links": [],
   "panels": [
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -142,14 +142,18 @@
           "zoom": 15
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "cratedb_pg"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as time,\n  latitude(geo_location) as latitude,\n  longitude(geo_location) as longitude,\n  data['temperature'] as temperature\nFROM\n  demo.climate_data\n  WHERE $__timeFilter(\"timestamp\")\n  ORDER BY timestamp;\n",
+          "rawSql": "SELECT\n  timestamp as time,\n  LATITUDE(geo_location) as latitude,\n  LONGITUDE(geo_location) as longitude,\n  data['temperature'] as temperature\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")\nORDER BY timestamp;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -176,7 +180,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -294,14 +298,18 @@
           "zoom": 15
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "cratedb_pg"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as time,\n  latitude(geo_location) as latitude,\n  longitude(geo_location) as longitude,\n  data['pressure'] as pressure\nFROM\n  demo.climate_data\n  WHERE $__timeFilter(\"timestamp\")\n  ORDER BY timestamp;\n",
+          "rawSql": "SELECT\n  timestamp as time,\n  LATITUDE(geo_location) as latitude,\n  LONGITUDE(geo_location) as longitude,\n  data['pressure'] as pressure\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")\nORDER BY timestamp;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -328,7 +336,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -446,14 +454,18 @@
           "zoom": 15
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "cratedb_pg"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as time,\n  latitude(geo_location) as latitude,\n  longitude(geo_location) as longitude,\n sqrt(data['u10']*data['u10'] + data['v10']*data['v10']) AS wind_speed\n FROM\n  demo.climate_data\n  WHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\n  ORDER BY timestamp;\n",
+          "rawSql": "SELECT\n  timestamp as time,\n  latitude(geo_location) as latitude,\n  longitude(geo_location) as longitude,\n  SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10']) AS wind_speed\n FROM\n  demo.climate_data\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\nORDER BY timestamp;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -480,7 +492,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -559,18 +571,18 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "ef3t72vm1tssgf"
+            "uid": "cratedb_pg"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as ts,\n  min(data['temperature']) as \"min\",\n  max(data['temperature']) as \"max\",\n  avg(data['temperature']) as \"avg\"\nFROM\n  demo.climate_data\n  WHERE $__timeFilter(\"timestamp\")\n  GROUP BY timestamp\nORDER BY timestamp;",
+          "rawSql": "SELECT\n  timestamp as ts,\n  MIN(data['temperature']) as \"min\",\n  MAX(data['temperature']) as \"max\",\n  AVG(data['temperature']) as \"avg\"\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY timestamp\nORDER BY timestamp;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -598,7 +610,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -677,18 +689,18 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "ef3t72vm1tssgf"
+            "uid": "cratedb_pg"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as ts,\n  min(data['pressure']) as \"min\",\n  max(data['pressure']) as \"max\",\n  avg(data['pressure']) as \"avg\"\nFROM\n  demo.climate_data\n  WHERE $__timeFilter(\"timestamp\")\n  GROUP BY timestamp\nORDER BY timestamp;",
+          "rawSql": "SELECT\n  timestamp as ts,\n  MIN(data['pressure']) as \"min\",\n  MAX(data['pressure']) as \"max\",\n  AVG(data['pressure']) as \"avg\"\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY timestamp\nORDER BY timestamp;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -716,7 +728,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "ef3t72vm1tssgf"
+        "uid": "cratedb_pg"
       },
       "fieldConfig": {
         "defaults": {
@@ -795,18 +807,18 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "dataset": "crate",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "ef3t72vm1tssgf"
+            "uid": "cratedb_pg"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as ts,\n  min(sqrt(data['u10']*data['u10'] + data['v10']*data['v10'])) AS \"min\",\n  max(sqrt(data['u10']*data['u10'] + data['v10']*data['v10'])) AS \"max\",\n  avg(sqrt(data['u10']*data['u10'] + data['v10']*data['v10'])) AS \"avg\"\nFROM\n  demo.climate_data\n  WHERE $__timeFilter(\"timestamp\")\n  GROUP BY timestamp\nORDER BY timestamp;",
+          "rawSql": "SELECT\n  timestamp as ts,\n  MIN(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"min\",\n  MAX(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"max\",\n  AVG(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"avg\"\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")GROUP BY timestamp\nORDER BY timestamp;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -846,5 +858,5 @@
   "timezone": "browser",
   "title": "CrateDB Real Time Demo",
   "uid": "adgxp2x",
-  "version": 10
+  "version": 1
 }
