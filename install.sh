@@ -77,7 +77,6 @@ pip3 install -U -r requirements.txt
 source /home/ec2-user/.bash_profile
 python3 producer.py
 
-
 echo "Fetching Grafana dashboards"
 wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.1/CrateDB.Real.Time.Demo.json
 wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.1/CrateDB.Real.Time.Demo.Munich.json
@@ -94,6 +93,29 @@ gpgkey=https://packages.grafana.com/gpg.key
 EOF
 sudo yum install grafana -y
 
+# Setup database provisioning
+sudo tee /etc/grafana/provisioning/datasources <<EOF
+apiVersion: 1
+
+datasources:
+  - name: grafana-postgresql-datasource
+    type: postgres
+    access: proxy
+    url: ${CrateDBHost}:5432
+    user: ${CrateDBUser}
+    database: ${CrateDBDatabase}
+    isDefault: true
+    editable: false
+
+    # Password goes in secureJsonData
+    secureJsonData:
+      password: ${CrateDBPass}
+
+    # Postgres-specific options
+    jsonData:
+      sslmode: require
+EOF
+      
 # Enable and start the service
 sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
