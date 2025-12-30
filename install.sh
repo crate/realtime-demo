@@ -93,29 +93,6 @@ gpgkey=https://packages.grafana.com/gpg.key
 EOF
 sudo yum install grafana -y
 
-# Setup database provisioning
-sudo tee /etc/grafana/provisioning/datasources <<EOF
-apiVersion: 1
-
-datasources:
-  - name: grafana-postgresql-datasource
-    type: postgres
-    access: proxy
-    url: ${CrateDBHost}:5432
-    user: ${CrateDBUser}
-    database: ${CrateDBDatabase}
-    isDefault: true
-    editable: false
-
-    # Password goes in secureJsonData
-    secureJsonData:
-      password: ${CrateDBPass}
-
-    # Postgres-specific options
-    jsonData:
-      sslmode: require
-EOF
-      
 # Enable and start the service
 sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
