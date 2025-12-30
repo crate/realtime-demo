@@ -510,6 +510,30 @@ Resources:
           SKIP_DOWNLOAD=true
           EOF
 
+          sudo mkdir -p /etc/grafana/provisioning/datasources
+
+          sudo tee /etc/grafana/provisioning/datasources/pgsql.yaml >/dev/null <<EOF
+          apiVersion: 1
+
+          datasources:
+            - name: grafana-postgresql-datasource
+              type: postgres
+              access: proxy
+              url: ${CrateDBHost}:5432
+              user: ${CrateDBUser}
+              database: ${CrateDBDatabase}
+              isDefault: true
+              editable: false
+
+              # Password goes in secureJsonData
+              secureJsonData:
+                password: "${CrateDBPass}"
+
+              # Postgres-specific options
+              jsonData:
+                sslmode: require
+          EOF
+
           # Now run the install.sh file in the repo
           chmod +x /home/ec2-user/realtime-demo/install.sh
           /home/ec2-user/realtime-demo/install.sh
