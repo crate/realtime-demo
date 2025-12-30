@@ -516,14 +516,14 @@ Resources:
           apiVersion: 1
 
           datasources:
-            - name: grafana-postgresql-datasource
+            - name: cratedb_pg
               type: postgres
               access: proxy
               url: ${CrateDBHost}:5432
               user: ${CrateDBUser}
               database: ${CrateDBDatabase}
               isDefault: true
-              editable: false
+              editable: true
 
               # Password goes in secureJsonData
               secureJsonData:
