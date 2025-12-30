@@ -97,7 +97,7 @@ providers:
 EOF
 
 sudo mkdir -p /var/lib/grafana/dashboards
-sudo cd /var/lib/grafana/dashboards
+cd /var/lib/grafana/dashboards
 sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.2/CrateDB.Real.Time.Demo.json
 sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.2/CrateDB.Real.Time.Demo.Munich.json
 
