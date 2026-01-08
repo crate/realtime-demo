@@ -327,7 +327,7 @@ Resources:
           echo "export AWS_REGION=${AWS::Region}" >> .bash_profile
 
           cd /home/ec2-user
-          git clone https://github.com/crate/realtime-demo.git -b unauthenticated
+          git clone https://github.com/crate/realtime-demo.git
 
           echo "Waiting for MSK cluster to become ACTIVE..."
           while true; do
