@@ -326,16 +326,6 @@ Resources:
           echo "export PATH=.local/bin:$PATH" >> .bash_profile
           echo "export AWS_REGION=${AWS::Region}" >> .bash_profile
 
-          # mkdir -p kafka
-          # cd kafka
-          # wget https://archive.apache.org/dist/kafka/3.6.0/kafka_2.13-3.6.0.tgz
-          # tar -xzf kafka_2.13-3.6.0.tgz
-          # cd /home/ec2-user
-          # chown -R ec2-user ./kafka
-          # chgrp -R ec2-user ./kafka
-          # cd /home/ec2-user/kafka/kafka_2.13-3.6.0/bin
-          # echo "security.protocol=PLAINTEXT" > client.properties
-
           cd /home/ec2-user
           git clone https://github.com/crate/realtime-demo.git -b unauthenticated
 
