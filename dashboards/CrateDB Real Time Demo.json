@@ -818,7 +818,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  timestamp as ts,\n  MIN(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"min\",\n  MAX(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"max\",\n  AVG(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"avg\"\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")GROUP BY timestamp\nORDER BY timestamp;",
+          "rawSql": "SELECT\n  timestamp as ts,\n  MIN(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"min\",\n  MAX(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"max\",\n  AVG(SQRT(data['u10'] * data['u10'] + data['v10'] * data['v10'])) AS \"avg\"\nFROM\n  demo.climate_data\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY timestamp\nORDER BY timestamp;",
           "refId": "A",
           "sql": {
             "columns": [
