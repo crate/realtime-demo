@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Use GCC10 to avoid weird compile issues
 export CC=gcc10-gcc
@@ -102,7 +102,7 @@ sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1
 sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.2/CrateDB.Real.Time.Demo.Munich.json
 
 # Install Grafana
-sudo cat /etc/yum.repos.d/grafana.repo <<EOF
+sudo tee /etc/yum.repos.d/grafana.repo <<EOF
 [grafana]
 name=Grafana OSS
 baseurl=https://packages.grafana.com/oss/rpm
