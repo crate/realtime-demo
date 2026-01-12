@@ -89,37 +89,7 @@ Mappings:
       CIDR: 10.0.3.0/24
   RegionAMI:
     us-east-1:
-      HVM64: ami-0c6b1d09930fac512
-    us-east-2:
-      HVM64: ami-0ebbf2179e615c338
-    us-west-1:
-      HVM64: ami-015954d5e5548d13b
-    us-west-2:
-      HVM64: ami-0cb72367e98845d43
-    ca-central-1:
-      HVM64: ami-08a9b721ecc5b0a53
-    ap-southeast-1:
-      HVM64: ami-0b5a47f8865280111
-    ap-southeast-2:
-      HVM64: ami-0fb7513bcdc525c3b
-    ap-south-1:
-      HVM64: ami-00e782930f1c3dbc7
-    ap-northeast-1:
-      HVM64: ami-00d101850e971728d
-    ap-northeast-2:
-      HVM64: ami-08ab3f7e72215fe91
-    eu-central-1:
-      HVM64: ami-0ebe657bc328d4e82
-    eu-west-1:
-      HVM64: ami-030dbca661d402413
-    eu-west-2:
-      HVM64: ami-0009a33f033d8b7b6
-    eu-west-3:
-      HVM64: ami-0ebb3a801d5fb8b9b
-    eu-north-1:
-      HVM64: ami-1fb13961
-    sa-east-1:
-      HVM64: ami-058141e091292ecf0
+      HVM64: ami-02dc6e3e481e2bbc5
 Resources:
   MskLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -455,16 +425,18 @@ Resources:
           REGION=${AWS::Region}
           CLUSTER_ARN=${MSKCluster}
 
-          yum update -y
-          amazon-linux-extras install epel -y
-          yum install -y java-1.8.0 git jq gcc10 gcc10-c++ zlib-devel python3-devel proj proj-devel libxml2-devel
+          sudo dnf -y install git python3.13
 
           cd /home/ec2-user
           echo "export PATH=.local/bin:$PATH" >> .bash_profile
           echo "export AWS_REGION=${AWS::Region}" >> .bash_profile
 
           cd /home/ec2-user
-          git clone https://github.com/crate/realtime-demo.git
+          git clone https://github.com/crate/realtime-demo.git -b new-ami
+
+          # Make ec2-user own the repo
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/realtime-demo/data
+          sudo chmod -R u+rwx /home/ec2-user/realtime-demo/data
 
           echo "Waiting for MSK cluster to become ACTIVE..."
           while true; do
@@ -524,9 +496,53 @@ Resources:
                 sslmode: require
           EOF
 
-          # Now run the install.sh file in the repo
-          chmod +x /home/ec2-user/realtime-demo/install.sh
-          /home/ec2-user/realtime-demo/install.sh
+          # Create the Python3.13 venv and install dependencies for real-time demo
+          cd /home/ec2-user/realtime-demo/data
+          python3.13 -m venv .venv
+          source .venv/bin/activate
+          pip3.13 install -U -r requirements.txt
+
+          # Fetch dashboards 
+          echo "Fetching Grafana dashboards"
+          sudo mkdir -p /etc/grafana/provisioning/dashboards
+          sudo tee /etc/grafana/provisioning/dashboards/dashboards.yaml >/dev/null <<EOF
+          apiVersion: 1
+
+          providers:
+            - name: 'PostgreSQL'
+              orgId: 1
+              folder: 'CrateDB'
+              type: file
+              disableDeletion: false
+              editable: true
+              updateIntervalSeconds: 30
+              options:
+                path: /var/lib/grafana/dashboards
+          EOF
+
+          # Fetch the demo dashboards
+          sudo mkdir -p /var/lib/grafana/dashboards
+          cd /var/lib/grafana/dashboards
+          sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.2/CrateDB.Real.Time.Demo.json
+          sudo wget https://github.com/crate/realtime-demo/releases/download/Dashboards-v1.2/CrateDB.Real.Time.Demo.Munich.json
+
+          # Install Grafana
+          sudo tee /etc/yum.repos.d/grafana.repo <<EOF
+          [grafana]
+          name=Grafana OSS
+          baseurl=https://packages.grafana.com/oss/rpm
+          repo_gpgcheck=1
+          enabled=1
+          gpgcheck=1
+          gpgkey=https://packages.grafana.com/gpg.key
+          EOF
+          sudo dnf install grafana -y
+
+          # Enable and start the service
+          sudo systemctl enable grafana-server
+          sudo systemctl start grafana-server
+
+          echo "Everything is installed!"
 
   EC2Role:
     Type: AWS::IAM::Role
