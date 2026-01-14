@@ -432,7 +432,7 @@ Resources:
           echo "export AWS_REGION=${AWS::Region}" >> .bash_profile
 
           cd /home/ec2-user
-          git clone https://github.com/crate/realtime-demo.git -b new-ami
+          git clone https://github.com/crate/realtime-demo.git -b main
 
           # Make ec2-user own the repo
           sudo chown -R ec2-user:ec2-user /home/ec2-user/realtime-demo/data
