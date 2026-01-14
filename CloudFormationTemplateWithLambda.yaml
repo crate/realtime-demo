@@ -500,7 +500,7 @@ Resources:
           cd /home/ec2-user/realtime-demo/data
           python3.13 -m venv .venv
           source .venv/bin/activate
-          pip3.13 install -U -r requirements.txt
+          pip install -U -r requirements.txt
 
           # Fetch dashboards 
           echo "Fetching Grafana dashboards"
