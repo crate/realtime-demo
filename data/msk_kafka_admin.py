@@ -7,7 +7,7 @@ from kafka.admin import KafkaAdminClient, NewTopic
 class MSKKafkaAdmin:
     "A Kafka administration client"
 
-    def __init__(self, aws_region: str, bootstrap_server: str) -> None:
+    def __init__(self, bootstrap_server: str) -> None:
         "Initializes the client for a given bootstrap server"
         self.client = KafkaAdminClient(
             bootstrap_servers=bootstrap_server,

@@ -37,10 +37,7 @@ def main() -> None:
     """
     topic_name = os.environ["AWS_MSK_TOPIC_NAME"]
 
-    kafka_admin = MSKKafkaAdmin(
-        os.environ["AWS_REGION"],
-        os.environ["AWS_MSK_BOOTSTRAP_SERVER"],
-    )
+    kafka_admin = MSKKafkaAdmin(os.environ["AWS_MSK_BOOTSTRAP_SERVER"])
 
     # Create the topic if it doesn't exist yet
     kafka_admin.topic_create(
@@ -64,10 +61,8 @@ def main() -> None:
     logger.info("Received %s combined JSON documents", len(json_documents))
 
     # Ingest the data into AWS MSK
-    kafka_producer = MSKKafkaProducer(
-        os.environ["AWS_REGION"],
-        os.environ["AWS_MSK_BOOTSTRAP_SERVER"],
-    )
+    kafka_producer = MSKKafkaProducer(os.environ["AWS_MSK_BOOTSTRAP_SERVER"])
+
     logger.info("Starting data ingestion")
     i = 0
     for document in json_documents:
