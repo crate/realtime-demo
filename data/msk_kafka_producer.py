@@ -8,7 +8,7 @@ from kafka import KafkaProducer
 class MSKKafkaProducer:
     "A Kafka Producer class that instantiates a client and writes data"
 
-    def __init__(self, aws_region: str, bootstrap_server: str) -> None:
+    def __init__(self, bootstrap_server: str) -> None:
         "Creates a new Kafka producer for a given bootstrap server URL"
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_server,
