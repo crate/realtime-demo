@@ -30,7 +30,7 @@ class MSKKafkaAdmin:
         ]
 
         if topic_name not in self.client.list_topics():
-            self.client.create_topics(topic_list)
+            self.client.create_topics(topic_list, wait_for_metadata=True)
             logging.info("Topic %s has been created successfully", topic_name)
         else:
             logging.info(

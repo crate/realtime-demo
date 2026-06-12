@@ -8,10 +8,10 @@ from kafka import KafkaProducer
 class MSKKafkaProducer:
     "A Kafka Producer class that instantiates a client and writes data"
 
-    def __init__(self, bootstrap_server: str) -> None:
+    def __init__(self, bootstrap_servers: str) -> None:
         "Creates a new Kafka producer for a given bootstrap server URL"
         self.producer = KafkaProducer(
-            bootstrap_servers=bootstrap_server,
+            bootstrap_servers=bootstrap_servers,
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
             retry_backoff_ms=500,
             request_timeout_ms=20000,
