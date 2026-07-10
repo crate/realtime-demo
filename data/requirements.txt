@@ -3,7 +3,7 @@ cdsapi < 0.8
 numpy < 2.6
 # Required by xarray to process NetCDF files
 netcdf4 < 1.8
-xarray < 2026.5
+xarray < 2026.8
 
 # Requirements for producer
 kafka-python >= 3.0.6, < 3.1
